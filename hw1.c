@@ -6,12 +6,27 @@
 */
 
 /* To compile: gcc -o hw1.out hw1.c lib/libunp.a */
-#include "lib/unp.h"
+#include "../lib/unp.h"
 #include <string.h>
 
 /* Change the #include for submission
 	#include "unp.h"
 */
+
+/*---------------------------- GLOBAL VAIRABLES -----------------------------*/
+
+#define BUFFsize 512
+
+/* Sender retransmits its last packet upon NOT receiving data for 1 second */
+#define RETRANSMIT_TIME_LIMIT 1 
+
+/* Abort the connection if NOT heard from the other party for 10 seconds */
+#define ABORT_TIME_LIMIT 10
+
+int MAX_TID_COUNT;
+
+int COUNT = 0;
+/*---------------------------------------------------------------------------*/
 
 /*-------------------------- Struct Declaration -----------------------------*/
 /*  	
@@ -27,28 +42,15 @@ typedef struct Packet {
 
 	unsigned short int OpCode; /* ALL, 2 bytes */
 
-	char FileName[MAXLINE]; /* RRQ or WRQ, string*/
+	char FileName[BUFFsize]; /* RRQ or WRQ, string*/
 
 	unsigned short int BlockNo; /* DATA or ACK, 2 bytes */
 	char Data[513]; /* DATA, n <= 512 bytes*/
 
 	unsigned short int ErrorCode; /* ERROR, 2 bytes*/
-	char ErrMsg[MAXLINE]; /* ERROR, n bytes */
+	char ErrMsg[BUFFsize]; /* ERROR, n bytes */
 } Packet;
 
-/*---------------------------------------------------------------------------*/
-
-/*---------------------------- GLOBAL VAIRABLES -----------------------------*/
-
-/* Sender retransmits its last packet upon NOT receiving data for 1 second */
-#define RETRANSMIT_TIME_LIMIT 1 
-
-/* Abort the connection if NOT heard from the other party for 10 seconds */
-#define ABORT_TIME_LIMIT 10
-
-int MAX_TID_COUNT;
-
-int COUNT = 0;
 /*---------------------------------------------------------------------------*/
 
 /*-------------------------- Function Declaration ---------------------------*/
