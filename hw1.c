@@ -5,6 +5,25 @@
 	CSCI-4220, Assignment 1
 */
 
+/*
+udp setup
+main(50%)
+parse message
+
+need:
+	send data
+	send ack
+	send error
+	receive message
+	
+	handle request(or with timeout)
+	Timeout
+	
+*/ 
+
+
+
+
 /* To compile: gcc -o hw1.out hw1.c lib/libunp.a */
 #include "lib/unp.h"
 #include <string.h>
