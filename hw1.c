@@ -5,25 +5,6 @@
 	CSCI-4220, Assignment 1
 */
 
-/*
-udp setup
-main(50%)
-parse message
-
-need:
-	send data
-	send ack
-	send error
-	receive message
-	
-	handle request(or with timeout)
-	Timeout
-	
-*/ 
-
-
-
-
 /* To compile: gcc -o hw1.out hw1.c lib/libunp.a */
 #include "lib/unp.h"
 #include <string.h>
@@ -40,19 +21,18 @@ need:
 		03 			DATA
 		04 			ACK
 		05 			ERROR
-
  */
 
 typedef struct Packet {
-	
-	unsigned short int OpCode = -1; /* ALL, 2 bytes */
+
+	unsigned short int OpCode; /* ALL, 2 bytes */
 
 	char FileName[MAXLINE]; /* RRQ or WRQ, string*/
 
-	unsigned short int BlockNo = -1; /* DATA or ACK, 2 bytes */
+	unsigned short int BlockNo; /* DATA or ACK, 2 bytes */
 	char Data[513]; /* DATA, n <= 512 bytes*/
 
-	unsigned short int ErrorCode = -1; /* ERROR, 2 bytes*/
+	unsigned short int ErrorCode; /* ERROR, 2 bytes*/
 	char ErrMsg[MAXLINE]; /* ERROR, n bytes */
 } Packet;
 
@@ -103,9 +83,9 @@ int main( int argc, char **argv ) {
 	/*----------------------------------------------------------------------------------*/
 
 	/*----------------------------------- UDP SETUP ------------------------------------*/
-
 	int sockfd = UDPsetup(start);
 
+	struct sockaddr_in	servaddr, cliaddr;
 	socklen_t	len = sizeof(cliaddr);
 	char		msg[MAXLINE];
 	/*----------------------------------------------------------------------------------*/
@@ -115,7 +95,7 @@ int main( int argc, char **argv ) {
 	/*----------------------------- START RECEIVING REQUEST ----------------------------*/
 	for ( ; ; ) {
 
-		memset(packet, 0, MAXLINE);
+		memset(msg, 0, MAXLINE);
 
 		Recvfrom(sockfd, msg, MAXLINE, 0, (SA *) &cliaddr, &len);
 
@@ -160,7 +140,7 @@ int main( int argc, char **argv ) {
 
 int UDPsetup(int port) {
 	int					sockfd;
-	struct sockaddr_in	servaddr, cliaddr;
+	struct sockaddr_in	servaddr;
 
 	sockfd = Socket(AF_INET, SOCK_DGRAM, 0);
 
@@ -179,6 +159,9 @@ int UDPsetup(int port) {
 void Parse_msg(char* msg, Packet* packet) {
 
 	bzero(packet, sizeof(Packet));
+	packet->OpCode = -1;
+	packet->BlockNo = -1;
+	packet->ErrorCode = -1;
 
 	/* Get OPCODE */
 	unsigned short int* opcode_ptr = (unsigned short int*) msg;
@@ -186,7 +169,6 @@ void Parse_msg(char* msg, Packet* packet) {
 
 	/* RRQ or WRQ */
 	if (packet->OpCode == 1 ||packet->OpCode == 2) {
-
 		/* Get Filename */
 		char* tmp = msg+2; /* skip first 2 bytes */
 		strcpy(packet->FileName, tmp);
@@ -207,6 +189,3 @@ void Parse_msg(char* msg, Packet* packet) {
 		strcpy(packet->ErrMsg, tmp);
 	}
 }
-
-
-
